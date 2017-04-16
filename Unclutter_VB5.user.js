@@ -45,16 +45,11 @@ function handler(){
 function handler_moment(){
   console.log('moment added :)');
   momentProc();
-  
-  $('#profileTabs').bind('DOMNodeInserted DOMNodeRemoved', function() {
-  //$('#profileTabs').bind("DOMSubtreeModified",function(){
-    //momentProc('changed');
-  });
-
 }
 
 var IsProcessed = false;
 mainProc();
+momentProc();
 
 function mainProc()
 {  
@@ -206,14 +201,32 @@ function mainProc()
 
       // add thread into thread bar
       var threadli = $('<li></li>')
+      //threadli.addClass('ui-widget-header');
+      var threaddiv = GetTitleDiv();// $('div.module-title').last();
+      threaddiv.removeClass('module-title');
+      var threada = $('<a href="'+GetThreadURL()+'"/>');
+      threada.css('color', 'inherit');
+      threada[0].style.setProperty('background-color', 'inherit', 'important');
+      $('h1', threaddiv).wrapInner(threada);
+      threadli.append(threaddiv);
+      
+      toolset.append(threadli);
+      /*var threadli = $('<li></li>')
       var threadtitle = $('.module-title h1.main-title').last().text();
-      var threadlink = $('<a />')
+      //var threadlink = $('<a />')
+      //threadlink.text(threadtitle);
+      //threadlink.attr('href', GetThreadURL());
+      //threadlink.addClass('linkcontainer');
+      var threadlink = $('<a href="'+GetThreadURL()+'"/>');
       threadlink.text(threadtitle);
-      threadlink.attr('href', GetThreadURL());
-      threadlink.addClass('linkcontainer');
+      threadlink.css('color', 'inherit');
+      threadlink.css('background-color', 'inherit !important');
+      $('.module-title h1.main-title').last().wrapInner(threadlink);
+      
       threadli.append(threadlink);
       toolset.append(threadli);
       $('.module-title h1.main-title').last().remove();
+      */
 
       // add 'goto to top/bottom'
       /*$('.toolset-right', threadbar)
@@ -251,6 +264,8 @@ function mainProc()
       var titlediv = $('div.module-title').last();
       titlediv.removeClass('module-title');
       var titlea = $('<a href="'+GetTopicURL()+'"/>');
+      titlea.css('color', 'inherit');
+      titlea[0].style.setProperty('background-color', 'inherit', 'important');
       $('h1', titlediv).wrapInner(titlea);
       titleli.append(titlediv);
 
