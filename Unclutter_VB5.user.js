@@ -8,14 +8,32 @@
 // @require     https://cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js
 // @version     0
 // @grant       none
+// @run-at      document-start
 // ==/UserScript==
 
 var IsProcessed = false;
-mainProc();
-momentProc();
+
+// add events for DOM and page loaded
+document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
+window.addEventListener ("load", pageFullyLoaded);
+
+function DOM_ContentReady () {
+    mainProc();
+}
+
+function pageFullyLoaded () {
+    momentProc();
+}
+
+// hide logo and sub-forums manually with pure-Javascript and CSS before pages loads
+(document.head || document.documentElement).insertAdjacentHTML('beforeend',
+    `<style>
+        #header { display: none!important; }
+        .subforum-list { display: none!important; }
+    </style>`);
 
 function mainProc()
-{  
+{
   if (typeof jQuery == 'undefined') {
     console.log("no jquery. wait for it...");
     return;    
@@ -25,7 +43,7 @@ function mainProc()
   if (IsProcessed) return;
   IsProcessed = true;
   
-  console.log("HideHeader VB5 loaded...");
+  console.log("Unclutter VB5 loaded...");
   
   var topbar = $('#channel-tabbar');
   if (topbar == undefined || topbar == null) {
