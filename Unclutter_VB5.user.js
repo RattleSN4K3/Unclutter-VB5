@@ -64,7 +64,7 @@ function dynamicProc(root, ajaxloaded) {
       var showdiv = $('<div class="conversation-status-message notice stick"><span></span></div>');
       showdiv.addClass('sticky-show');
       var showlink = $('<a href="#" />');
-      showlink.text('(Click to show sticky topics)');
+      showlink.text('Sticky topics hidden (Click to show)');
       showlink.click(function(event) {
         event.preventDefault();
         IsStickyHidden = false;
