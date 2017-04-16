@@ -43,6 +43,9 @@ function pageFullyLoaded () {
         #header { display: none!important; }
         .subforum-list { display: none!important; }
         div.votes-count { display: none!important; }
+
+		.b-module.default-widget.page-title-widget { min-height: 0px; margin-bottom: 0px; }
+		.b-module.default-widget.page-title-widget .widget-header .module-title { display: none!important; }
     </style>`);
 
   
