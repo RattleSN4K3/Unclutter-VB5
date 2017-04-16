@@ -36,7 +36,6 @@ function pageFullyLoaded () {
 function mainProc()
 {
   if (typeof jQuery == 'undefined') {
-    console.log("no jquery. wait for it...");
     return;
   }
 
@@ -48,22 +47,18 @@ function mainProc()
 
   var topbar = $('#channel-tabbar');
   if (topbar === undefined || topbar === null || !topbar.length) {
-    console.log("No top bar");
+    console.error("Unclutter VB5: no top bar");
     return;
   }
 
   var subbar = $('#channel-subtabbar');
   if (subbar === undefined || subbar === null || !subbar.length) {
-    console.log("No sub bar");
+    console.error("Unclutter VB5: No sub bar");
     return;
   }
 
   var mainbar = $('#main-navbar');
   var bread = $('#breadcrumbs');
-  console.log(topbar);
-  console.log(subbar);
-  console.log(mainbar);
-
 
   // Move main-bar search into channel bar
   $('#header > .toolbar > ul > li.search-container').css('margin', '0px');
@@ -154,23 +149,20 @@ function mainProc()
 
   var threadbar = $('#thread-view-tab .conversation-toolbar');
   if (threadbar !== null && threadbar.length) {
-    console.log("change thread bar");
 
     // check or create toolset
     var toolset = null;
     var toolsetcheck = $('ul.toolset-left', threadbar);
     if (toolsetcheck.length) {
-      console.log("add to left toolset");
       toolset = toolsetcheck.first();
     } else if ($('ul.toolset-right', threadbar).length) {
-      console.log("dup right toolset");
       var toolsetleft = $('ul.toolset-right', threadbar).clone().empty();
       toolsetleft.removeClass('toolset-right');
       toolsetleft.addClass('toolset-left');
       toolsetleft.appendTo(threadbar);
       toolset = toolsetleft;
     } else {
-      console.log("what to do with toolset");
+      console.info("Unclutter VB5: What to do with toolset?");
     }
 
     if (toolset !== null) {
@@ -222,7 +214,6 @@ function mainProc()
 
   var topicbar = $('#topic-tab .conversation-toolbar');
   if (topicbar !== null && topicbar.length) {
-    console.log("change topic bar");
 
     // move subscribe button in topic toolset section
     $('.channel-controls button').each(function(){
@@ -275,15 +266,14 @@ function mainProc()
   }
 
   // increase editor height
+  /* TODO: NOT WORKING
   $('.cke_inner .cke_contents').each(function(index, editor) {
     console.log("editor too small");
-    $(editor).css('height', '150px');
-    /*if ($(editor).height() < 100) {
-
+    if ($(editor).height() < 100) {
       $(editor).css('height', $(editor).height() + 'px');
-    }*/
+    }
   });
-
+  */
 
 
   // thread likes
@@ -313,26 +303,14 @@ function mainProc()
 function momentProc() {
 
   $('time').each(function(i, elem) {
-    //console.log($(elem).html());
     var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
-    //console.log(d);
-//    d.locale('fr');
-    //console.log(d.local().format("YYYY-MM-DD HH:mm:ss"));
-    //console.log(moment('dddd').format());
-    //console.log(moment("Sunday, February 28, 2010").format('MM/DD/YYYY'));
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
     }
   });
 
   $('div.post-date:not(:has("*")), span.post-date:not(:has("*")), span.date:not(:has("*"))').each(function(i, elem) {
-    //console.log($(elem).html());
     var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
-    //console.log(d);
-//    d.locale('fr');
-    //console.log(d.local().format("YYYY-MM-DD HH:mm:ss"));
-    //console.log(moment('dddd').format());
-    //console.log(moment("Sunday, February 28, 2010").format('MM/DD/YYYY'));
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
     }
