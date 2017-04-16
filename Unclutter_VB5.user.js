@@ -329,14 +329,14 @@ function momentProc(root) {
   }
 
   $('time', root).each(function(i, elem) {
-    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
+    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a', true);
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
     }
   });
 
   $('div.post-date:not(:has("*")), span.post-date:not(:has("*")), span.date:not(:has("*"))', root).each(function(i, elem) {
-    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
+    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a', true);
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
     }
