@@ -13,17 +13,28 @@
 // ==/UserScript==
 
 var IsProcessed = false;
+var IsStickyHidden = false;
 
 // add events for DOM and page loaded
 document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
 window.addEventListener ("load", pageFullyLoaded);
 
 function DOM_ContentReady () {
-    mainProc();
+  mainProc();
 }
 
 function pageFullyLoaded () {
-    momentProc();
+  momentProc();
+
+  new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      dynamicProc(mutation.target, true);
+      momentProc(mutation.target);
+    });
+
+    // Stop observing if needed:
+    //this.disconnect();
+  }).observe(document.querySelector('#topic-tab'), {childList: true});
 }
 
 // hide logo and sub-forums manually with pure-Javascript and CSS before pages loads
@@ -31,7 +42,55 @@ function pageFullyLoaded () {
     `<style>
         #header { display: none!important; }
         .subforum-list { display: none!important; }
+        div.votes-count { display: none!important; }
     </style>`);
+
+  
+function dynamicProc(root, ajaxloaded) {
+  ajaxloaded = ajaxloaded || false;
+
+  if (root === null) {
+    root = $(document);
+  }
+
+  if (ajaxloaded) {
+    if (!IsStickyHidden) {
+      IsStickyHidden = true;
+      $('head').prepend('<style id="stickyhidden">.sticky-list { display: none!important; }');
+    }
+
+    // hide sticky topics and add notice to re-show them
+    if (!$('.sticky-show').length && $('.sticky-list', root).length) {
+      var showdiv = $('<div class="conversation-status-message notice stick"><span></span></div>');
+      showdiv.addClass('sticky-show');
+      var showlink = $('<a href="#" />');
+      showlink.text('(Click to show sticky topics)');
+      showlink.click(function(event) {
+        event.preventDefault();
+        IsStickyHidden = false;
+        $('#stickyhidden').remove();
+        $('.sticky-show').remove();
+      });
+      $('span', showdiv).html(showlink);
+      $('.conversation-toolbar-wrapper').append(showdiv);
+    }
+  }
+
+  // sub-forum list into main forum entry
+  $('.subforum-list', root).each(function(index_sub, subforum){
+    var mainforum = $(subforum).prev('tr');
+    var subforumul = $('<ul style="margin-top: 10px;" />');
+    $('tr td div', subforum).each(function(index_itm, subitm){
+      $(subitm).css('width', '-moz-fit-content');
+      subforumul.append($('<li style="display: inline; float: left; margin-left: 10px;" />').append(subitm));
+    });
+    $('.forum-info', mainforum).append(subforumul);
+    $(subforum).remove();
+  });
+
+  // thread likes
+  $('.votes-count', root).remove();
+}
 
 function mainProc()
 {
@@ -56,7 +115,7 @@ function mainProc()
     console.error("Unclutter VB5: No sub bar");
     return;
   }
-
+  
   var mainbar = $('#main-navbar');
   var bread = $('#breadcrumbs');
 
@@ -95,44 +154,7 @@ function mainProc()
     nouserlist.appendTo(subbar);
   }
 
-
-  // sub-forum list into main forum entry
-  $('.subforum-list').each(function(index_sub, subforum){
-    var mainforum = $(subforum).prev('tr');
-    /*
-    var subdiv = $('<div />');
-    $('.subforum-item', subforum).each(function(index_itm, subitm){
-      //subli.append(subitm.unwrap());
-      //subitm.unwrap();
-      subdiv.append(subitm);
-    });
-    $(subforum).remove();
-    subdiv.css('margin-top', '15px');
-    $('.forum-info', mainforum).append(subdiv);
-
-    */
-
-    // Somehow good
-    //$('.forum-info', mainforum).append($('tr td div', subforum));
-    //$(subforum).remove();
-
-    var subformul = $('<ul style="margin-top: 10px;" />');
-    $('tr td div', subforum).each(function(index_itm, subitm){
-      $(subitm).css('width', '-moz-fit-content');
-      subformul.append($('<li style="display: inline; float: left; margin-left: 10px;" />').append(subitm));
-    });
-    $('.forum-info', mainforum).append(subformul);
-    $(subforum).remove();
-
-
-    //$('.forum-info', mainforum).append($('td', subforum));
-
-    //$(subforum).prev('tr').remove();
-    //$(subforum).remove();
-    //var libutton = $('<li></li>').append($(this));
-    //$('ul', topicbar).first().append(libutton);
-  });
-
+  dynamicProc();
 
   // move post options ("see more", "goto post") into post controls bar
   $('li.b-post').each(function(index_post, post) {
@@ -276,9 +298,6 @@ function mainProc()
   */
 
 
-  // thread likes
-  $('.votes-count').remove();
-
   // remove margin from thread bar
   $('.widget-content').css('margin-top', '0px');
 
@@ -300,16 +319,20 @@ function mainProc()
   });
 }
 
-function momentProc() {
+function momentProc(root) {
 
-  $('time').each(function(i, elem) {
+  if (root === null) {
+    root = $(document);
+  }
+
+  $('time', root).each(function(i, elem) {
     var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
     }
   });
 
-  $('div.post-date:not(:has("*")), span.post-date:not(:has("*")), span.date:not(:has("*"))').each(function(i, elem) {
+  $('div.post-date:not(:has("*")), span.post-date:not(:has("*")), span.date:not(:has("*"))', root).each(function(i, elem) {
     var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a');
     if (d.isValid) {
       $(elem).html(d.format("YYYY-MM-DD HH:mm"));
@@ -317,12 +340,12 @@ function momentProc() {
   });
 
 
-  $('.profile-info-item:contains("Last Activity")').each(function(i, elem) {
+  $('.profile-info-item:contains("Last Activity")', root).each(function(i, elem) {
     var d = moment($(elem).html(), '[Last Activity:] MM/DD/YYYY, hh:mm a');
     $(elem).html(d.local().format("[Last Activity:] YYYY-MM-DD HH:mm"));
   });
 
-  $('.profile-info-item:contains("Joined")').each(function(i, elem) {
+  $('.profile-info-item:contains("Joined")', root).each(function(i, elem) {
     var d = moment($(elem).html(), '[Joined:] MM/DD/YYYY');
     $(elem).html(d.local().format("[Joined:] YYYY-MM-DD"));
   });
