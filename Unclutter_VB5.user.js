@@ -4,48 +4,11 @@
 // @description Cleans up forum, mainly by removing additional space and merging elements
 // @include     *//www.epicgames.com/unrealtournament/forums
 // @include     *//www.epicgames.com/unrealtournament/forums/*
+// @require     https://code.jquery.com/jquery-1.11.0.min.js
+// @require     https://cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js
 // @version     0
 // @grant       none
 // ==/UserScript==
-
-var head = document.getElementsByTagName('head')[0];
-var script = document.createElement('script');
-script.src = 'https://code.jquery.com/jquery-1.11.0.min.js';
-script.type = 'text/javascript';
-document.getElementsByTagName('head')[0].appendChild(script);
-
-// Then bind the event to the callback function.
-// There are several events for cross browser compatibility.
-script.onreadystatechange = handler;
-script.onload = handler;
-
-// Fire the loading
-head.appendChild(script);
-
-
-script = document.createElement('script');
-script.src = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js';
-script.type = 'text/javascript';
-document.getElementsByTagName('head')[0].appendChild(script);
-
-// Then bind the event to the callback function.
-// There are several events for cross browser compatibility.
-script.onreadystatechange = handler_moment;
-script.onload = handler_moment;
-
-// Fire the loading
-head.appendChild(script);
-
-function handler(){
-  console.log('jquery added :)'); 
-  //alert("test");
-  mainProc();
-}
-
-function handler_moment(){
-  console.log('moment added :)');
-  momentProc();
-}
 
 var IsProcessed = false;
 mainProc();
