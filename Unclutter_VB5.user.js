@@ -111,8 +111,11 @@ function dynamicProc(root, ajaxloaded) {
     $(quoteli).wrapInner(quotea);
   });
 
-  // thread likes
-  $('.votes-count', root).remove();
+  // thread likes remove and add to previous element
+  $('.votes-count', root).each((i, elem) => {
+    $(elem).prev('div').attr('title', $(elem).text());
+    elem.remove();
+  });
 }
 
 function mainProc()
