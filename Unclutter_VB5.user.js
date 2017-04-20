@@ -25,6 +25,8 @@ function DOM_ContentReady () {
 
 function pageFullyLoaded () {
   momentProc();
+  
+  window.setTimeout(checkQuote, 500);
 
   new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
@@ -35,6 +37,19 @@ function pageFullyLoaded () {
     // Stop observing if needed:
     //this.disconnect();
   }).observe(document.querySelector('#topic-tab'), {childList: true});
+}
+
+function checkQuote() {
+  window.location.search.substr(1).split("&").forEach(function(item) {
+    var hasquote = false;
+    if (item.startsWith("quote-") == true) {
+      var selector = '#'+item; //+' .b-post-control__label';
+      $(selector).trigger('click');
+    }
+    if (hasquote == true) {
+      history.replaceState( {} , '', GetThreadURL() );
+    }
+  });
 }
 
 // hide logo and sub-forums manually with pure-Javascript and CSS before pages loads
@@ -89,6 +104,11 @@ function dynamicProc(root, ajaxloaded) {
     });
     $('.forum-info', mainforum).append(subforumul);
     $(subforum).remove();
+  });
+  
+  $('#content li.b-post-control__quote', root).each(function(index_quote, quoteli) {
+    var quotea = $('<a nohref style="color: inherit!important;" href="'+GetThreadURL()+'?'+quoteli.id+'" onclick="return false;" />');
+    $(quoteli).wrapInner(quotea);
   });
 
   // thread likes
