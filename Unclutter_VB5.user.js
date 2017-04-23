@@ -26,7 +26,7 @@ function DOM_ContentReady () {
 function pageFullyLoaded () {
   momentProc();
   
-  window.setTimeout(checkQuote, 500);
+  window.setTimeout(checkAjaxInNewWindow, 500);
 
   var observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
@@ -44,15 +44,26 @@ function pageFullyLoaded () {
   });
 }
 
-function checkQuote() {
-  window.location.search.substr(1).split("&").forEach(function(item) {
-    var hasquote = false;
+function checkAjaxInNewWindow() {
+  var hasajaxcommand = false;
+  var urlparms = window.location.search.substr(1).split("&");
+  $.each(urlparms, function(index, item) {
     if (item.startsWith("quote-") == true) {
+      hasajaxcommand = true;
       var selector = '#'+item; //+' .b-post-control__label';
       $(selector).trigger('click');
     }
-    if (hasquote == true) {
-      history.replaceState( {} , '', GetThreadURL() );
+    else if (item.startsWith("edit-") == true) {
+      hasajaxcommand = true;
+      var selector = '#'+item;
+      $(selector).trigger('click');
+      document.getElementById(selector).scrollIntoView();
+    }
+    
+    if (index == urlparms.length - 1) {
+      if (hasajaxcommand == true) {
+        history.replaceState( {} , '', GetThreadURL() );
+      }
     }
   });
 }
@@ -111,6 +122,15 @@ function dynamicProc(root, ajaxloaded) {
     $(subforum).remove();
   });
   
+  $('li.b-post-control.js-post-control__edit', root).each(function(index_edit, editli) {
+    // prevent adding additional controls link twice
+    if ($(editli).data('unclutter') == true) return;
+    $(editli).data('unclutter', true);
+
+    // add link to edit 'buttons'
+    var edita = $('<a class="editlink" nohref style="color: inherit!important;" href="'+GetThreadURL()+'?'+editli.id+'" onclick="return false;" />');
+    $(editli).wrapInner(edita);
+  });
   
   $('li.b-post-control__quote', root).each(function(index_quote, quoteli) {
     // prevent adding additional controls link twice
