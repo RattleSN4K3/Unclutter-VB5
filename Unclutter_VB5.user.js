@@ -28,7 +28,7 @@ function pageFullyLoaded () {
   
   window.setTimeout(checkQuote, 500);
 
-  new MutationObserver(function(mutations) {
+  var observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       dynamicProc(mutation.target, true);
       momentProc(mutation.target);
@@ -36,7 +36,12 @@ function pageFullyLoaded () {
 
     // Stop observing if needed:
     //this.disconnect();
-  }).observe(document.querySelector('#topic-tab'), {childList: true});
+  });
+  
+  var observerConfig = {childList: true, subtree: true};
+  $('#topic-tab, #thread-view-tab').each(function() {
+    observer.observe(this, observerConfig);
+  });
 }
 
 function checkQuote() {
@@ -66,7 +71,7 @@ function checkQuote() {
   
 function dynamicProc(root, ajaxloaded) {
   ajaxloaded = ajaxloaded || false;
-
+  
   if (root === null) {
     root = $(document);
   }
@@ -106,8 +111,44 @@ function dynamicProc(root, ajaxloaded) {
     $(subforum).remove();
   });
   
-  $('#content li.b-post-control__quote', root).each(function(index_quote, quoteli) {
-    var quotea = $('<a nohref style="color: inherit!important;" href="'+GetThreadURL()+'?'+quoteli.id+'" onclick="return false;" />');
+  
+  $('li.b-post-control__quote', root).each(function(index_quote, quoteli) {
+    // prevent adding additional controls link twice
+    if ($(quoteli).data('unclutter') == true) return;
+    $(quoteli).data('unclutter', true);
+    
+    // adding multi-quote link
+    var multiquoteli = $(quoteli).clone();
+    $(multiquoteli).off();
+    $('span', $(multiquoteli)).off();
+    $(multiquoteli).removeClass('js-post-control__quote');
+    $(multiquoteli).removeClass('b-post-control__quote');
+    
+    multiquoteli.attr('id', "multi" + multiquoteli.attr('id'));
+    $('.b-post-control__label', multiquoteli).html("Multi Quote");
+    $(multiquoteli).click(function() {
+      var editordivs = [];
+      $('.js-editor').each(function(index, elem) {
+        var editordiv = $(elem).parents('.b-content-entry');
+        editordivs.push(editordiv);
+
+        editordiv.removeClass('b-content-entry');
+        editordiv.removeClass('js-content-entry');
+      });
+
+      $(quoteli).trigger('click');
+      
+      $.each(editordivs, function( index, div ) {
+        $(div).addClass('b-content-entry');
+        $(div).addClass('js-content-entry');
+      });
+    });
+    
+    $(quoteli).after(multiquoteli);
+    
+    
+    // add link to quote 'buttons'
+    var quotea = $('<a class="quotelink" nohref style="color: inherit!important;" href="'+GetThreadURL()+'?'+quoteli.id+'" onclick="return false;" />');
     $(quoteli).wrapInner(quotea);
   });
 
