@@ -373,6 +373,78 @@ function mainProc()
       pagetitle.remove();
     }
   }
+  
+  // adding last/first page to page controls
+  $('.pagenav-controls form').each(function(index_pagenav, pagenavform) {
+    var arrows = $('.horizontal-arrows', $(pagenavform));
+    
+    var firstpagea = $('a[rel="prev"]', arrows).clone();
+    firstpagea.removeClass('arrow'); // prevent javascript code being added
+    firstpagea.addClass('pagebound');
+    firstpagea.attr('title', 'First Page');
+    firstpagea.attr('href', vBulletin.makePaginatedUrl(location.href, 1));
+    firstpagea.attr('data-page', '1');
+    $('.vb-icon-arrow-left', firstpagea).clone().appendTo(firstpagea);
+
+    var lastpagea = $('a[rel="next"]', arrows).clone();
+    lastpagea.removeClass('arrow'); // prevent javascript code being added
+    lastpagea.addClass('pagebound');
+    lastpagea.attr('title', 'Last Page');
+    var lastpagenum = $('.pagetotal', $(pagenavform)).text();
+    lastpagea.attr('href', vBulletin.makePaginatedUrl(location.href, lastpagenum));
+    lastpagea.attr('data-page', lastpagenum);
+    $('.vb-icon-arrow-right', lastpagea).clone().appendTo(lastpagea);
+
+    //setTimeout(function(){
+      //firstpagea.addClass('arrow');
+      //lastpagea.addClass('arrow');
+      //firstpagea.off('click');
+      //firstpagea.unbind('click');
+    //}, 50);
+
+    firstpagea.add(lastpagea).click(function(event) {
+      event.preventDefault();
+      
+      $(this).addClass('arrow');
+      
+      // easiest solution by manipulating page num box and trigger keypress
+      var num22 = $(this).attr('data-page');
+      console.log(num22);
+      var form = this.form || firstpagea.closest("form").get(0);
+      $('.js-pagenum', form).val(num22); //'50');
+      
+      var e = jQuery.Event('keypress');
+      e.which = 13; // # Some key code value
+      e.keyCode  = 13;
+      $('.js-pagenum', form).trigger(e);
+      
+      $(this).removeClass('arrow');
+      
+      setTimeout(function(){
+        var currentpage = $('.js-pagenum', $(pagenavform)).val();
+        var lastpage = $('.pagetotal', $(pagenavform)).text();
+        $('.pagebound', pagenavform).each(function(){
+          var reltag = $(this).attr('rel');
+          if (reltag == 'next') {
+            if (currentpage == lastpage && $(this).hasClass('h-disabled') == false)
+              $(this).addClass('h-disabled');
+            else if (currentpage != lastpage && $(this).hasClass('h-disabled') == true)
+              $(this).removeClass('h-disabled');
+            
+          } else if (reltag == 'prev') {
+            if (currentpage == 1 && $(this).hasClass('h-disabled') == false)
+              $(this).addClass('h-disabled');
+            else if (currentpage != 1 && $(this).hasClass('h-disabled') == true)
+              $(this).removeClass('h-disabled');
+          }
+          
+        });
+      }, 50);
+    });
+    
+    arrows.prepend(firstpagea);
+    arrows.prepend(lastpagea);
+  });
 
   // increase editor height
   /* TODO: NOT WORKING
