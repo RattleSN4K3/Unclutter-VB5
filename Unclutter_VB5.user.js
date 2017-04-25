@@ -38,9 +38,11 @@ function pageFullyLoaded () {
     //this.disconnect();
   });
   
-  var observerConfig = {childList: true, subtree: true};
-  $('#topic-tab, #thread-view-tab').each(function() {
-    observer.observe(this, observerConfig);
+  $('#topic-tab').each(function() {
+    observer.observe(this, {childList: true});
+  });
+  $('#thread-view-tab').each(function() {
+    observer.observe(this, {childList: true, subtree: true});
   });
 }
 
@@ -491,7 +493,7 @@ function momentProc(root) {
   .add('span.time:not(:has("*"))', root)
   .each(function(i, elem) {
     var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a Z', true);
-    if (d.isValid) {
+    if (d.isValid && $(elem).html().indexOf(',') >= 0) { // trying to prevent converting multiple times
       var originaltext = $(elem).html();
       originaltext += " (" + d.utc().fromNow() + ")";
       $(elem).attr('title', originaltext);
