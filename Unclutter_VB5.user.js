@@ -484,28 +484,28 @@ function momentProc(root) {
     root = $(document);
   }
 
-  $('time', root).each(function(i, elem) {
-    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a', true);
+  $('time', root)
+  .add('div.post-date:not(:has("*"))', root)
+  .add('span.post-date:not(:has("*"))', root)
+  .add('span.date:not(:has("*"))', root)
+  .add('span.time:not(:has("*"))', root)
+  .each(function(i, elem) {
+    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a Z', true);
     if (d.isValid) {
-      $(elem).html(d.format("YYYY-MM-DD HH:mm"));
+      var originaltext = $(elem).html();
+      originaltext += " (" + d.utc().fromNow() + ")";
+      $(elem).attr('title', originaltext);
+      $(elem).html(d.local().format("YYYY-MM-DD HH:mm"));
     }
   });
-
-  $('div.post-date:not(:has("*")), span.post-date:not(:has("*")), span.date:not(:has("*"))', root).each(function(i, elem) {
-    var d = moment($(elem).html(), 'MM/DD/YYYY, hh:mm a', true);
-    if (d.isValid) {
-      $(elem).html(d.format("YYYY-MM-DD HH:mm"));
-    }
-  });
-
 
   $('.profile-info-item:contains("Last Activity")', root).each(function(i, elem) {
-    var d = moment($(elem).html(), '[Last Activity:] MM/DD/YYYY, hh:mm a');
+    var d = moment($(elem).html(), '[Last Activity:] MM/DD/YYYY, hh:mm a Z');
     $(elem).html(d.local().format("[Last Activity:] YYYY-MM-DD HH:mm"));
   });
 
   $('.profile-info-item:contains("Joined")', root).each(function(i, elem) {
-    var d = moment($(elem).html(), '[Joined:] MM/DD/YYYY');
+    var d = moment($(elem).html(), '[Joined:] MM/DD/YYYY Z');
     $(elem).html(d.local().format("[Joined:] YYYY-MM-DD"));
   });
 }
