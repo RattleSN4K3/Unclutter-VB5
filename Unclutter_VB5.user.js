@@ -79,6 +79,13 @@ function checkAjaxInNewWindow() {
 
 		.b-module.default-widget.page-title-widget { min-height: 0px; margin-bottom: 0px; }
 		.b-module.default-widget.page-title-widget .widget-header .module-title { display: none!important; }
+
+		.button-cloak { color: inherit!important; }
+
+		.scrolltofixed-floating .floating-control { display: none!important; }
+		.scrolltofixed-floating.scrolltofixed-top.scrolltofixed .floating-control { display: inline-block!important; }
+		.scrolltofixed-floating.scrolltofixed-top .floating-control-sticky { display: inline-block!important; }
+
     </style>`);
 
   
@@ -315,11 +322,8 @@ function mainProc()
       */
 
       // add 'goto to top/bottom'
-      /*$('.toolset-right', threadbar)
-      //.prepend('<li class="goto-bottom-container"><a href="' + location.href + '#post" class="button secondary goto-bottom-button"><label>Bottom</label><span class="vb-icon-wrapper"><span class="vb-icon vb-icon-triangle-down-wide"></span></span></a></li>')
-      .prepend('<li><div><a href="' + location.href + '#topic-module-top" class="button secondary goto-top-button">Top<span class="vb-icon-wrapper"><span class="vb-icon vb-icon-triangle-up-wide"></span></a></div></li>')
-      .prepend('<li class="goto-top-container"><a href="' + location.href + '#topic-module-top" class="button secondary goto-top-button"><label>Top</label><span class="vb-icon-wrapper"><span class="vb-icon vb-icon-triangle-up-wide"></span></span></a></li>')
-      ;*/
+      var gotobuttons = CreateGotoButtons();
+      $('.toolset-right', threadbar).prepend(gotobuttons);
     }
   }
 
@@ -358,6 +362,10 @@ function mainProc()
       // remove remaining title
       $('div.module-title').last().remove();
     }
+    
+    // add 'goto to top/bottom'
+    var gotobuttons = CreateGotoButtons();
+    $('.toolset-right', topicbar).prepend(gotobuttons);
   }
 
   // move page title into breadcrumbs if not in thread/topic view
@@ -531,4 +539,13 @@ function GetTopicURL() {
 function GetThreadURL() {
   var formref = $('.pagenav-controls > form');
   return formref && formref.first().attr('action');
+}
+
+function CreateGotoButtons() {
+  var gotoli = $('<li />')
+  var gotobuttons = $('<div class="h-clearfix js-button" />')
+  .append('<a class="floating-control-sticky button-cloak" href="' + location.href + '#footer"><div class="label h-left">Bottom</div><div class="arrow vb-icon-wrapper h-left"><span class="vb-icon vb-icon-triangle-down-wide"></span></div></a>')
+  .append('<a class="floating-control button-cloak h-margin-left-m" href="' + location.href + '#topic-module-top"><div class="label h-left">Top</div><div class="arrow vb-icon-wrapper h-left"><span class="vb-icon vb-icon-triangle-up-wide"></span></div></a>')
+  gotoli.append(gotobuttons);
+  return gotoli;
 }
