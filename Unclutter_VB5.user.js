@@ -118,6 +118,9 @@ function checkAjaxInNewWindow() {
 		.scrolltofixed-floating.scrolltofixed-top.scrolltofixed .floating-control { display: inline-block!important; }
 		.scrolltofixed-floating.scrolltofixed-top .floating-control-sticky { display: inline-block!important; }
 
+		.videocontainer .restrain { width: 640px!important; }
+		.videocontainer .restrain { margin-right: 10px!important; }
+
     </style>`);
 
   
