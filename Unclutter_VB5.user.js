@@ -21,6 +21,19 @@ window.addEventListener ("load", pageFullyLoaded);
 
 function DOM_ContentReady () {
   mainProc();
+
+  // check for mutations due to last/first-page links updated via Javascript
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      UpdatePaginationLinks(mutation.target);
+    });    
+
+    // Stop observing if needed:
+    //this.disconnect();
+  });
+  $('.pagenav-container .js-pagenav-last-button, .pagenav-container .js-pagenav-first-button').each(function() {
+    observer.observe(this, {childList: true, subtree: true, attributes: true, attributeFilter: ['href']});
+  });
 }
 
 function pageFullyLoaded () {
@@ -384,52 +397,60 @@ function mainProc()
     }
   }
   
+
   // adding last/first page to page controls
   $('.pagenav-controls form').each(function(index_pagenav, pagenavform) {
     var arrows = $('.horizontal-arrows', $(pagenavform));
-    
+
     var firstpagea = $('a[rel="prev"]', arrows).clone();
     firstpagea.removeClass('arrow'); // prevent javascript code being added
     firstpagea.addClass('pagebound');
+    firstpagea.addClass('unclutter-first-page');
     firstpagea.attr('title', 'First Page');
-    firstpagea.attr('href', vBulletin.makePaginatedUrl(location.href, 1));
+    firstpagea.attr('href', GetFirstPageURL(1));
     firstpagea.attr('data-page', '1');
     $('.vb-icon-arrow-left', firstpagea).clone().appendTo(firstpagea);
 
     var lastpagea = $('a[rel="next"]', arrows).clone();
     lastpagea.removeClass('arrow'); // prevent javascript code being added
     lastpagea.addClass('pagebound');
+    lastpagea.addClass('unclutter-last-page');
     lastpagea.attr('title', 'Last Page');
     var lastpagenum = $('.pagetotal', $(pagenavform)).text();
-    lastpagea.attr('href', vBulletin.makePaginatedUrl(location.href, lastpagenum));
+    lastpagea.attr('href', GetLastPageURL(lastpagenum));
     lastpagea.attr('data-page', lastpagenum);
     $('.vb-icon-arrow-right', lastpagea).clone().appendTo(lastpagea);
 
     //setTimeout(function(){
-      //firstpagea.addClass('arrow');
-      //lastpagea.addClass('arrow');
-      //firstpagea.off('click');
-      //firstpagea.unbind('click');
+    //firstpagea.addClass('arrow');
+    //lastpagea.addClass('arrow');
+    //firstpagea.off('click');
+    //firstpagea.unbind('click');
     //}, 50);
 
     firstpagea.add(lastpagea).click(function(event) {
-      event.preventDefault();
-      
+      var form = this.form || $(this).closest("form").get(0);
+
+      // abort href handling for ajax buttons
+      var element = $('.js-pagenum', form);
+      var events = $(element).data('events');
+      if (events && events['click'] != undefined) {
+        event.preventDefault();
+      }
+
       $(this).addClass('arrow');
-      
+
       // easiest solution by manipulating page num box and trigger keypress
       var num22 = $(this).attr('data-page');
-      console.log(num22);
-      var form = this.form || firstpagea.closest("form").get(0);
-      $('.js-pagenum', form).val(num22); //'50');
-      
+      $('.js-pagenum', form).val(num22);
+
       var e = jQuery.Event('keypress');
       e.which = 13; // # Some key code value
       e.keyCode  = 13;
       $('.js-pagenum', form).trigger(e);
-      
+
       $(this).removeClass('arrow');
-      
+
       setTimeout(function(){
         var currentpage = $('.js-pagenum', $(pagenavform)).val();
         var lastpage = $('.pagetotal', $(pagenavform)).text();
@@ -440,18 +461,18 @@ function mainProc()
               $(this).addClass('h-disabled');
             else if (currentpage != lastpage && $(this).hasClass('h-disabled') == true)
               $(this).removeClass('h-disabled');
-            
+
           } else if (reltag == 'prev') {
             if (currentpage == 1 && $(this).hasClass('h-disabled') == false)
               $(this).addClass('h-disabled');
             else if (currentpage != 1 && $(this).hasClass('h-disabled') == true)
               $(this).removeClass('h-disabled');
           }
-          
+
         });
       }, 50);
     });
-    
+
     arrows.prepend(firstpagea);
     arrows.prepend(lastpagea);
   });
@@ -520,6 +541,22 @@ function momentProc(root) {
   });
 }
 
+function UpdatePaginationLinks(root) {
+  var parent = $(document);
+  if (root !== null) {
+    parent = root.parent;
+  }
+
+  var newlink = $(root).attr('href');
+  if ($(root).hasClass('js-pagenav-last-button') == true) {
+    $('a.unclutter-last-page', parent).attr('href', newlink);
+  }
+  
+  if ($(root).hasClass('js-pagenav-first-button') == true) {
+    $('a.unclutter-first-page', parent).attr('href', newlink);
+  }
+}
+
 function GetTitleDiv() {
   var returndiv = null;
   $('.b-module.page-title-widget').each(function(index, div) {
@@ -548,4 +585,30 @@ function CreateGotoButtons() {
   .append('<a class="floating-control button-cloak h-margin-left-m" href="' + location.href + '#topic-module-top"><div class="label h-left">Top</div><div class="arrow vb-icon-wrapper h-left"><span class="vb-icon vb-icon-triangle-up-wide"></span></div></a>')
   gotoli.append(gotobuttons);
   return gotoli;
+}
+
+function GetFirstPageURL(pagenum) {
+  if (pagenum === null) pagenum = 1;
+  
+  var pagelink = $('.pagenav-container a.js-pagenav-first-button').each(function(){
+    var pagelink = $(this);
+    if (pagelink.length && pagelink.attr('href') && pagelink.attr('href') != window.pageData.baseurl) {
+      return pagelink.attr('href');
+    }
+  });
+    
+  return vBulletin.makePaginatedUrl(location.href, pagenum);
+}
+
+function GetLastPageURL(pagenum) {
+  if (pagenum === null) pagenum = 99;
+  
+  var pagelink = $('.pagenav-container a.js-pagenav-last-button').each(function(){
+    var pagelink = $(this);
+    if (pagelink.length && pagelink.attr('href') && pagelink.attr('href') != window.pageData.baseurl) {
+      return pagelink.attr('href');
+    }
+  });
+                                                                       
+  return vBulletin.makePaginatedUrl(location.href, pagenum);
 }
