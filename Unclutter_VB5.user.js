@@ -57,6 +57,25 @@ function pageFullyLoaded () {
   $('#thread-view-tab').each(function() {
     observer.observe(this, {childList: true, subtree: true});
   });
+  
+  // observer for dialog
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      mutation.addedNodes.forEach(function(addnode) {
+        if ($(addnode).hasClass('ui-dialog-content') == true) {
+          momentProc(addnode);
+        }
+      });
+    });
+
+    // Stop observing if needed:
+    //this.disconnect();
+  });
+
+  // start observing body for dynamically added dialogs
+  $('body').each(function() {
+    observer.observe(this, {childList: true});
+  });
 }
 
 function checkAjaxInNewWindow() {
