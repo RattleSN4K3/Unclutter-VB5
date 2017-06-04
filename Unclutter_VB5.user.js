@@ -6,7 +6,7 @@
 // @include     *//www.epicgames.com/unrealtournament/forums/*
 // @require     https://code.jquery.com/jquery-1.11.0.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js
-// @version     0
+// @version     1
 // @author      RattleSN4K3
 // @grant       none
 // @run-at      document-start
